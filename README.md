@@ -1,2 +1,3 @@
-# group-chat
-A simple group chat app
+# Group Chat 👻
+A simple group chat app with NodeJS
+
