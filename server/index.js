@@ -30,7 +30,6 @@ app.get('/', (req, res) => {
 io.on('connection', (socket) => {
     let currentRoom = undefined
     let userNickname = undefined
-    console.log(`${socket.id} connected`)
 
     const JoinRoomWithNickname = (room, nickname) => {
         room.users.add(nickname)
@@ -42,8 +41,6 @@ io.on('connection', (socket) => {
 
         currentRoom = room
         userNickname = nickname
-
-        console.log(`${nickname} join to ${room.id}`)
     }
 
     socket.on('allRoom', () => {
@@ -74,13 +71,9 @@ io.on('connection', (socket) => {
     })
 
     socket.on('join-room', (roomId, passcode, nickname) => {
-        console.log(roomId, passcode, nickname)
         room = rooms.find((e) => e.id == roomId)
 
-        if (!room) {
-            socket.emit('join-room-error', 'Room not found!')
-            return
-        }
+        if (!room) return
         if (room.users.has(nickname)) {
             socket.emit('join-room-error', 'Nickname has been used!')
             return
@@ -97,8 +90,17 @@ io.on('connection', (socket) => {
         JoinRoomWithNickname(room, nickname)
     })
 
+    socket.on('is-lock', (id) => {
+        const found = rooms.find((r) => r.id == id)
+
+        if (found) {
+            socket.emit('is-lock', found.passcode ? true : false)
+            return
+        }
+        socket.emit('is-lock', null)
+    })
+
     socket.on('message', (message) => {
-        console.log('emit message', currentRoom)
         if (socket.rooms.size <= 1) return
         socket.broadcast
             .to(currentRoom.id)

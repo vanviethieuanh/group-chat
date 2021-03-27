@@ -26,8 +26,20 @@ $passcode-size: 40px;
 $bubble-padding:10px;
 $bubble-border-radius:20px;
 $bubble-space-expand:10px;
-$bubble-space-from-op:15px;
+$bubble-space-from-op:90px;
 $bubble-space:2px;
 
 $chat-bar-height: 36px;
 $chat-bar-margin: 10px;
+
+// animation
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    
+    to {
+        transform: rotate(360deg);
+    }
+  }
+  

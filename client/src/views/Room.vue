@@ -58,6 +58,8 @@ export default {
     methods: {
         Send: function() {
             var message = this.$el.querySelector('#message').value
+            if (!message) return
+
             this.$el.querySelector('#message').value = ''
 
             this.$socket.emit('message', message)
@@ -113,23 +115,26 @@ export default {
         li {
             border-radius: 20px;
 
-            font-size: $small-text;
-            line-height: $small-text;
             width: fit-content;
 
-            padding: 10px;
+            display: flex;
+            flex-direction: column;
 
-            display: inline-block;
             clear: both;
             text-align: left;
 
             .user {
                 font-size: $tiny-text;
                 opacity: 0.5;
+                padding: $bubble-space;
             }
 
             .message {
-                font-size: $medium-text;
+                width: min-content;
+
+                font-size: $small-text;
+                line-height: $small-text + 2px;
+
                 padding: $bubble-padding;
                 border-radius: $bubble-border-radius;
             }
@@ -141,6 +146,9 @@ export default {
                 .message {
                     background: $dim;
                     border-bottom-left-radius: $input-border-radius;
+                }
+                & + .me {
+                    margin-top: $bubble-space;
                 }
             }
 
@@ -157,8 +165,9 @@ export default {
 
                 & + .me {
                     margin-top: $bubble-space;
-                    border-top-right-radius: 5px;
-                    border-bottom-right-radius: 5px;
+                }
+                & + :not(.me) {
+                    margin-top: $bubble-space;
                 }
             }
         }

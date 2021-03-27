@@ -29,6 +29,8 @@ import store from '@/store'
 import router from '@/router'
 export default {
     created() {
+        this.$socket.removeAllListeners()
+
         this.$socket.emit('allRoom')
         this.$socket.on('allRoom', function(rooms) {
             store.commit('addRooms', rooms)

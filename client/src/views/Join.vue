@@ -11,8 +11,11 @@
             <PincodeInput v-model="code" placeholder="" /><br />
         </div>
         <div class="nickname">
-            <p>
+            <p v-if="!errorLog">
                 🐟 Your nickname ?
+            </p>
+            <p class="error-log" v-else>
+                😭 Nick name has been used!
             </p>
             <div class="nickname-input">
                 <form v-on:submit.prevent="Join">
@@ -38,16 +41,30 @@ export default {
         PincodeInput
     },
     created() {
-        this.$socket.emit('allRoom')
-        this.$socket.on('allRoom', function(rooms) {
-            store.commit('addRooms', rooms)
+        this.$socket.removeAllListeners()
+
+        this.$socket.emit('is-lock', this.id)
+
+        this.$socket.on('is-lock', result => {
+            if (result == null) {
+                router.push('/room-not-found')
+            }
+            this.isEnteringPasscode = result
         })
-        this.$socket.on('join-room-success', function() {
+        this.$socket.on('join-room-success', () => {
             store.state.roomId = this.id
             router.push('/room')
         })
-        this.$socket.on('join-room-error', function(err) {
-            console.error(err)
+        this.$socket.on('join-room-error', err => {
+            if (err == 'Wrong passcode!') {
+                this.wasWrongPasscode = true
+                this.isEnteringPasscode = true
+                this.code = ''
+                return
+            }
+
+            this.errorLog = err
+            this.isEnteringPasscode = false
         })
     },
     props: ['id'],
@@ -56,17 +73,16 @@ export default {
             code: '',
             nickname: '',
             wasWrongPasscode: false,
-            isEnteringPasscode: store.getters.isRoomLock(this.id)
+            isEnteringPasscode: true,
+            errorLog: null
         }
     },
     watch: {
-        code: {
-            handler: function(val) {
-                if (val.length === 4) this.isEnteringPasscode = false
-            },
-            deep: true
+        code(val) {
+            if (val.length === 4) this.isEnteringPasscode = false
         }
     },
+
     methods: {
         Join: function() {
             this.$socket.emit('join-room', this.id, this.code, this.nickname)
@@ -132,8 +148,12 @@ export default {
         align-items: center;
 
         p {
-            padding: 20px;
+            padding: 0px;
             color: $faded-text;
+
+            &.error-log {
+                color: tomato;
+            }
         }
 
         input {

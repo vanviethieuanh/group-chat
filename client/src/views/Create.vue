@@ -43,6 +43,8 @@ export default {
     },
 
     created() {
+        this.$socket.removeAllListeners()
+
         this.$socket.on('create-room', function(id) {
             store.state.roomId = id
             router.push('/room')
