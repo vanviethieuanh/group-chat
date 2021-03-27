@@ -31,9 +31,10 @@ const routes = [
         component: Create
     },
     {
-        path: '/join',
+        path: '/join/:id',
         name: 'Join',
-        component: Join
+        component: Join,
+        props: true
     },
     {
         path: '*',

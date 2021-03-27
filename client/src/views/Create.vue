@@ -4,9 +4,9 @@
             <p>
                 Enter passcode for the room.
             </p>
-            <PincodeInput v-model="code" placeholder="" length="6" /><br />
+            <PincodeInput v-model="code" placeholder="" /><br />
             <a v-on:click="Next">{{
-                code.length !== 6 ? 'Go ahead without a passcode' : 'Continue'
+                code.length !== 4 ? 'Go ahead without a passcode' : 'Continue'
             }}</a>
         </div>
         <div class="nickname">
@@ -32,12 +32,21 @@
 </template>
 
 <script>
+import store from '@/store'
 import PincodeInput from 'vue-pincode-input'
+import router from '@/router'
 
 export default {
     name: 'Home',
     components: {
         PincodeInput
+    },
+
+    created() {
+        this.$socket.on('create-room', function(id) {
+            store.state.roomId = id
+            router.push('/room')
+        })
     },
     data: function() {
         return {
@@ -49,7 +58,7 @@ export default {
     watch: {
         code: {
             handler: function(val) {
-                if (val.length === 6) this.Next()
+                if (val.length === 4) this.Next()
             },
             deep: true
         }
@@ -62,14 +71,7 @@ export default {
             this.isEnteringPasscode = true
         },
         CreateRoom: function() {
-            this.$router.push({
-                name: 'Room',
-                params: {
-                    passcode: this.code,
-                    nickname: this.nickname,
-                    isJoin: false
-                }
-            })
+            this.$socket.emit('create-room', this.code, this.nickname)
         }
     }
 }

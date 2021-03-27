@@ -2,24 +2,20 @@
     <div class="create" v-bind:class="{ onPasscode: isEnteringPasscode }">
         <div class="passcode">
             <p>
-                Enter passcode for the room.
+                {{
+                    wasWrongPasscode
+                        ? 'Wrong passcode!'
+                        : 'Enter passcode for the room.'
+                }}
             </p>
-            <PincodeInput v-model="code" placeholder="" length="6" /><br />
-            <a v-on:click="Next">{{
-                code.length !== 6 ? 'Go ahead without a passcode' : 'Continue'
-            }}</a>
+            <PincodeInput v-model="code" placeholder="" /><br />
         </div>
         <div class="nickname">
             <p>
                 🐟 Your nickname ?
             </p>
             <div class="nickname-input">
-                <button v-on:click="Back">
-                    <v-icon>
-                        mdi-chevron-left
-                    </v-icon>
-                </button>
-                <form v-on:submit.prevent="CreateRoom">
+                <form v-on:submit.prevent="Join">
                     <input
                         v-model="nickname"
                         type="text"
@@ -32,44 +28,48 @@
 </template>
 
 <script>
+import store from '@/store'
 import PincodeInput from 'vue-pincode-input'
+import router from '@/router'
 
 export default {
     name: 'Home',
     components: {
         PincodeInput
     },
+    created() {
+        this.$socket.emit('allRoom')
+        this.$socket.on('allRoom', function(rooms) {
+            store.commit('addRooms', rooms)
+        })
+        this.$socket.on('join-room-success', function() {
+            store.state.roomId = this.id
+            router.push('/room')
+        })
+        this.$socket.on('join-room-error', function(err) {
+            console.error(err)
+        })
+    },
+    props: ['id'],
     data: function() {
         return {
             code: '',
             nickname: '',
-            isEnteringPasscode: true
+            wasWrongPasscode: false,
+            isEnteringPasscode: store.getters.isRoomLock(this.id)
         }
     },
     watch: {
         code: {
             handler: function(val) {
-                if (val.length === 6) this.Next()
+                if (val.length === 4) this.isEnteringPasscode = false
             },
             deep: true
         }
     },
     methods: {
-        Next: function() {
-            this.isEnteringPasscode = false
-        },
-        Back: function() {
-            this.isEnteringPasscode = true
-        },
-        CreateRoom: function() {
-            this.$router.push({
-                name: 'Room',
-                params: {
-                    passcode: this.code,
-                    nickname: this.nickname,
-                    isJoin: false
-                }
-            })
+        Join: function() {
+            this.$socket.emit('join-room', this.id, this.code, this.nickname)
         }
     }
 }

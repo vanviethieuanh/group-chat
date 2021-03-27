@@ -7,7 +7,12 @@
                     v-bind:class="{ me: item.user === undefined }"
                     :key="item.id"
                 >
-                    {{ item.message }}
+                    <div v-if="item.user != undefined" class="user">
+                        {{ item.user }}
+                    </div>
+                    <div class="message">
+                        {{ item.message }}
+                    </div>
                 </li>
             </ul>
         </div>
@@ -35,19 +40,9 @@ import router from '@/router'
 
 export default {
     created() {
-        const { passcode, nickname, isJoin } = this.$route.params
+        if (!store.state.roomId) router.push('/')
 
-        if (nickname == null) router.push('/')
-
-        if (!isJoin) this.$socket.emit('create-room', passcode, nickname)
-        else this.$socket.emit('join-room', this.$route.params.roomId)
-
-        this.$socket.on('create-room', function(id) {
-            store.commit('changeRoomId', {
-                id: id
-            })
-        })
-
+        this.$socket.removeAllListeners()
         this.$socket.on('message', function(message) {
             store.commit('addMessage', message)
         })
@@ -76,7 +71,7 @@ export default {
             var input = document.body.appendChild(
                 document.createElement('input')
             )
-            input.value = `${window.location.href}/${store.state.roomId}`
+            input.value = `${window.location.host}/join/${store.state.roomId}`
             input.focus()
             input.select()
             document.execCommand('copy')
@@ -116,7 +111,6 @@ export default {
             list-style: none;
         }
         li {
-            background: $dim;
             border-radius: 20px;
 
             font-size: $small-text;
@@ -129,23 +123,24 @@ export default {
             clear: both;
             text-align: left;
 
+            .user {
+                font-size: $tiny-text;
+                opacity: 0.5;
+            }
+
+            .message {
+                font-size: $medium-text;
+                padding: $bubble-padding;
+                border-radius: $bubble-border-radius;
+            }
+
             &:not(.me) {
                 float: left;
                 margin-right: $bubble-space-from-op;
 
-                background: $dim;
-                &:first-of-type {
-                    border-bottom-left-radius: 5px;
-                }
-
-                & + .me {
-                    margin-top: $bubble-space-expand;
-                    border-bottom-right-radius: 5px;
-                }
-                & + :not(.me) {
-                    margin-top: $bubble-space;
-                    border-bottom-left-radius: 5px;
-                    border-top-left-radius: 5px;
+                .message {
+                    background: $dim;
+                    border-bottom-left-radius: $input-border-radius;
                 }
             }
 
@@ -154,26 +149,16 @@ export default {
                 margin-left: $bubble-space-from-op;
                 margin-right: 5px;
 
-                background: $main-color;
-                color: white;
-
-                &:first-of-type {
-                    border-bottom-right-radius: 5px;
+                .message {
+                    border-bottom-right-radius: $input-border-radius;
+                    background: $main-color;
+                    color: white;
                 }
 
                 & + .me {
                     margin-top: $bubble-space;
                     border-top-right-radius: 5px;
                     border-bottom-right-radius: 5px;
-                }
-
-                & + :not(.me) {
-                    margin-top: $bubble-space-expand;
-                    border-bottom-left-radius: 5px;
-                    &:last-of-type {
-                        background: red;
-                        border-bottom-left-radius: 30px;
-                    }
                 }
             }
         }

@@ -1,9 +1,10 @@
 // Color
 $main-color: #3498db;
 $dim: rgba(0, 0, 0, 0.04);
-$faded-text: rgba(0, 0, 0, 0.8);
+$faded-text: #0d0d0e;
 
 // Typo
+$tiny-text:14px;
 $small-text:16px;
 $medium-text:20px;
 $large-text:70px;
@@ -22,6 +23,8 @@ $expand-column-width: 140%;
 
 $passcode-size: 40px;
 
+$bubble-padding:10px;
+$bubble-border-radius:20px;
 $bubble-space-expand:10px;
 $bubble-space-from-op:15px;
 $bubble-space:2px;

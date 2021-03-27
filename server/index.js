@@ -15,10 +15,10 @@ const io = require('socket.io')(http, {
 })
 
 const GetRoom = function () {
-    return _.flatMap(rooms, (r) => {
+    return rooms.map((r) => {
         return {
             id: r.id,
-            icon: r.passcode ? 'mdi-lock' : 'mdi-lock-open',
+            isLock: r.passcode ? true : false,
         }
     })
 }
@@ -28,13 +28,22 @@ app.get('/', (req, res) => {
 })
 
 io.on('connection', (socket) => {
-    let currentRoomId = undefined
+    let currentRoom = undefined
     let userNickname = undefined
     console.log(`${socket.id} connected`)
 
-    const JoinRoomWithNickname = (roomId, nickname) => {
-        socket.join(roomId)
+    const JoinRoomWithNickname = (room, nickname) => {
+        room.users.add(nickname)
+
+        socket.join(room.id)
+        io.in(room.id).emit('join-room-success', {
+            nickname: nickname,
+        })
+
+        currentRoom = room
         userNickname = nickname
+
+        console.log(`${nickname} join to ${room.id}`)
     }
 
     socket.on('allRoom', () => {
@@ -43,20 +52,21 @@ io.on('connection', (socket) => {
 
     socket.on('create-room', (passcode, nickname) => {
         if (socket.rooms.size == 2) {
-            socket.emit('create-room', currentRoomId)
+            socket.emit('create-room', currentRoom.id)
             return
         }
         if (!nickname) return
-        userNickname = nickname
 
         let room = {}
 
         room.id = uuidv4()
-        currentRoomId = room.id
-
-        if (/\d{6}/g.test(passcode)) room.passcode = passcode
-
+        room.passcode = /\d{4}/g.test(passcode) ? passcode : null
+        room.users = new Set()
+        room.users.add(nickname)
         rooms.push(room)
+
+        userNickname = nickname
+        currentRoom = room
 
         socket.join(room.id)
         socket.emit('create-room', room.id)
@@ -64,33 +74,42 @@ io.on('connection', (socket) => {
     })
 
     socket.on('join-room', (roomId, passcode, nickname) => {
+        console.log(roomId, passcode, nickname)
         room = rooms.find((e) => e.id == roomId)
 
         if (!room) {
-            socket.emit('Room not found')
+            socket.emit('join-room-error', 'Room not found!')
+            return
+        }
+        if (room.users.has(nickname)) {
+            socket.emit('join-room-error', 'Nickname has been used!')
             return
         }
         if (!room.passcode) {
-            JoinRoomWithNickname(room.id, nickname)
+            JoinRoomWithNickname(room, nickname)
             return
         }
-        if (room.passcode == passcode) {
-            JoinRoomWithNickname(room.id, nickname)
+        if (room.passcode != passcode) {
+            socket.emit('join-room-error', 'Wrong passcode!')
             return
         }
 
-        socket.emit('Wrong passcode!')
+        JoinRoomWithNickname(room, nickname)
     })
 
     socket.on('message', (message) => {
+        console.log('emit message', currentRoom)
         if (socket.rooms.size <= 1) return
         socket.broadcast
-            .to(currentRoomId)
+            .to(currentRoom.id)
             .emit('message', { user: userNickname, message: message })
     })
 
     socket.on('disconnect', () => {
-        io.to(currentRoomId).emit(`${userNickname} left the room`)
+        if (currentRoom) {
+            currentRoom.users.delete(userNickname)
+            io.to(currentRoom.id).emit(`${userNickname} left the room`)
+        }
     })
 })
 
