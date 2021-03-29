@@ -1,6 +1,6 @@
 <template>
     <div class="select">
-        <div class="no-room" v-if="$store.state.rooms.length == 0">
+        <div class="no-room" v-if="rooms.length == 0">
             <h1>🚪 There is no room now</h1>
             <router-link to="/create">Create a room ?</router-link>
         </div>
@@ -8,7 +8,7 @@
             <v-subheader>ROOM</v-subheader>
             <v-list-item-group v-model="selectedRoomId" color="primary">
                 <v-list-item
-                    v-for="(room, i) in $store.getters.getRoomsAsItems"
+                    v-for="(room, i) in getRoomsAsItems"
                     :key="i"
                     v-on:click="JoinRoom(room.id)"
                 >
@@ -25,21 +25,30 @@
 </template>
 
 <script>
-import store from '@/store'
 import router from '@/router'
 export default {
     created() {
         this.$socket.removeAllListeners()
 
         this.$socket.emit('allRoom')
-        this.$socket.on('allRoom', function(rooms) {
-            console.log(rooms)
-            store.commit('addRooms', rooms)
+        this.$socket.on('allRoom', rooms => {
+            this.rooms = rooms
         })
     },
     data: function() {
         return {
+            rooms: [],
             selectedRoomId: ''
+        }
+    },
+    computed: {
+        getRoomsAsItems() {
+            return this.rooms.map(room => {
+                return {
+                    id: room.id,
+                    icon: room.isLock ? 'mdi-lock' : 'mdi-lock-open'
+                }
+            })
         }
     },
     methods: {
