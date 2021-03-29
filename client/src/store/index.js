@@ -4,12 +4,15 @@ import Vuex from 'vuex'
 
 Vue.use(Vuex)
 
-export default new Vuex.Store({
-    state: {
-        messages: [],
+function initialState() {
+    return {
         roomId: null,
         rooms: []
-    },
+    }
+}
+
+export default new Vuex.Store({
+    state: initialState,
     mutations: {
         addMessage(state, payload) {
             state.messages.push(payload)
@@ -19,6 +22,11 @@ export default new Vuex.Store({
         },
         addRooms(state, payload) {
             state.rooms = payload
+        },
+        resetState(state) {
+            // Merge rather than replace so we don't lose observers
+            // https://github.com/vuejs/vuex/issues/1118
+            Object.assign(state, initialState())
         }
     },
     actions: {},

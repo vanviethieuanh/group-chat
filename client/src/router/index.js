@@ -18,7 +18,8 @@ const routes = [
     {
         path: '/room',
         name: 'Room',
-        component: Room
+        component: Room,
+        params: true
     },
     {
         path: '/select',

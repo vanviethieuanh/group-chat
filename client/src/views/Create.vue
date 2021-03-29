@@ -32,7 +32,6 @@
 </template>
 
 <script>
-import store from '@/store'
 import PincodeInput from 'vue-pincode-input'
 import router from '@/router'
 
@@ -46,8 +45,7 @@ export default {
         this.$socket.removeAllListeners()
 
         this.$socket.on('create-room', function(id) {
-            store.state.roomId = id
-            router.push('/room')
+            router.push({ name: 'Room', params: { id: id } })
         })
     },
     data: function() {

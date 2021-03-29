@@ -3,7 +3,7 @@
         <div id="messages">
             <ul>
                 <li
-                    v-for="item in $store.state.messages"
+                    v-for="item in messages"
                     v-bind:class="{ me: item.user === undefined }"
                     :key="item.id"
                 >
@@ -35,25 +35,27 @@
 </template>
 
 <script>
-import store from '@/store'
 import router from '@/router'
 
 export default {
+    name: 'Room',
     created() {
-        if (!store.state.roomId) router.push('/')
+        if (!this.$route.params.id) router.push('/')
 
         this.$socket.removeAllListeners()
-        this.$socket.on('message', function(message) {
-            store.commit('addMessage', message)
+        this.$socket.on('message', message => {
+            this.messages.push(message)
         })
+    },
+    data: function() {
+        return {
+            messages: [],
+            roomId: this.$route.params.id
+        }
     },
     updated() {
         var container = this.$el.querySelector('#messages')
         container.scrollTop = container.scrollHeight
-    },
-
-    data: function() {
-        return {}
     },
     beforeRouteLeave(to, from, next) {
         this.$socket.emit('leave-room')
@@ -69,7 +71,7 @@ export default {
 
             this.$socket.emit('message', message)
 
-            store.commit('addMessage', {
+            this.messages.push({
                 user: undefined,
                 message: message
             })
@@ -78,7 +80,7 @@ export default {
             var input = document.body.appendChild(
                 document.createElement('input')
             )
-            input.value = `${window.location.host}/join/${store.state.roomId}`
+            input.value = `${window.location.host}/join/${this.roomId}`
             input.focus()
             input.select()
             document.execCommand('copy')

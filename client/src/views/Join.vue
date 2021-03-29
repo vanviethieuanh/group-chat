@@ -31,7 +31,6 @@
 </template>
 
 <script>
-import store from '@/store'
 import PincodeInput from 'vue-pincode-input'
 import router from '@/router'
 
@@ -52,8 +51,10 @@ export default {
             this.isEnteringPasscode = result
         })
         this.$socket.on('join-room-success', () => {
-            store.state.roomId = this.id
-            router.push('/room')
+            router.push({
+                name: 'Room',
+                params: { id: this.id }
+            })
         })
         this.$socket.on('join-room-error', err => {
             if (err == 'Wrong passcode!') {
