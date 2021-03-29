@@ -16,7 +16,7 @@
             <div class="nickname-input">
                 <button v-on:click="Back">
                     <v-icon>
-                        mdi-chevron-left
+                        fa4 fa-chevron-left
                     </v-icon>
                 </button>
                 <form v-on:submit.prevent="CreateRoom">
@@ -150,6 +150,9 @@ export default {
             font-size: $medium-text;
 
             margin-left: 7px;
+        }
+        i {
+            font-size: 14px;
         }
 
         .nickname-input {

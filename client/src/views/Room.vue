@@ -17,8 +17,8 @@
             </ul>
         </div>
         <form class="chat-bar" id="form-message" v-on:submit.prevent="Send">
-            <v-btn icon color="grey" v-on:click="copyRoomURL">
-                <v-icon>mdi-link</v-icon>
+            <v-btn class="mx-2" icon color="grey" @click="copyRoomURL">
+                <v-icon>fa4 fa-link</v-icon>
             </v-btn>
             <input
                 id="message"
@@ -27,8 +27,14 @@
                 placeholder="Enter message ..."
             />
 
-            <v-btn icon color="grey" type="submit" form="form-message">
-                <v-icon>mdi-send</v-icon>
+            <v-btn
+                class="mx-2"
+                icon
+                color="grey"
+                type="submit"
+                form="form-message"
+            >
+                <v-icon>fa4 fa-paper-plane</v-icon>
             </v-btn>
         </form>
     </div>
@@ -179,6 +185,9 @@ export default {
     }
 
     .chat-bar {
+        i {
+            font-size: $chat-bar-height * 0.6;
+        }
         display: flex;
 
         position: absolute;

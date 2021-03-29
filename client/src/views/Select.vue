@@ -46,7 +46,7 @@ export default {
             return this.rooms.map(room => {
                 return {
                     id: room.id,
-                    icon: room.isLock ? 'mdi-lock' : 'mdi-lock-open'
+                    icon: room.isLock ? 'fa4 fa-lock' : 'fa4 fa-unlock'
                 }
             })
         }
