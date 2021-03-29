@@ -55,6 +55,11 @@ export default {
     data: function() {
         return {}
     },
+    beforeRouteLeave(to, from, next) {
+        this.$socket.emit('leave-room')
+        next()
+    },
+
     methods: {
         Send: function() {
             var message = this.$el.querySelector('#message').value
@@ -130,8 +135,6 @@ export default {
             }
 
             .message {
-                width: min-content;
-
                 font-size: $small-text;
                 line-height: $small-text + 2px;
 
