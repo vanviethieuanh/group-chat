@@ -91,6 +91,20 @@ io.on('connection', (socket) => {
         JoinRoomWithNickname(room, nickname)
     })
 
+    socket.on('leave-room', () => {
+        if (currentRoom) {
+            socket.leave(currentRoom.id)
+
+            currentRoom.users.delete(userNickname)
+            if (currentRoom.users.size == 0) {
+                delete rooms[currentRoom.id]
+                io.emit('allRoom', GetRoom())
+            }
+
+            io.to(currentRoom.id).emit('leaf-room', userNickname)
+        }
+    })
+
     socket.on('is-lock', (id) => {
         const found = rooms[id]
 
@@ -116,7 +130,7 @@ io.on('connection', (socket) => {
                 io.emit('allRoom', GetRoom())
             }
 
-            io.to(currentRoom.id).emit(`${userNickname} left the room`)
+            io.to(currentRoom.id).emit('leaf-room', userNickname)
         }
     })
 })
