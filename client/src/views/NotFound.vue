@@ -3,8 +3,8 @@
         <div class="container">
             <div class="title">
                 <p>4</p>
-                <div class="emoji">🌓</div>
-                <p>4</p>
+                <div class="emoji">🌑</div>
+                <p>4!</p>
             </div>
             <div class="back">
                 <router-link to="/home">Home</router-link>
@@ -31,18 +31,15 @@ export default {}
 
         display: flex;
         flex-direction: row;
+        opacity: 0.9;
 
         p {
             font-size: 90px;
             font-weight: bold;
+            color: black;
         }
         .emoji {
-            font-size: 80px;
-
-            animation-name: rotate;
-            animation-duration: 2s;
-            animation-iteration-count: infinite;
-            animation-timing-function: linear;
+            font-size: 70px;
         }
     }
 
