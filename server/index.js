@@ -5,7 +5,7 @@ const cors = require('cors')
 
 const PORT = process.env.PORT || 5000
 const app = express()
-const rooms = []
+const rooms = {}
 
 app.use(cors())
 
@@ -15,7 +15,7 @@ const io = require('socket.io')(http, {
 })
 
 const GetRoom = function () {
-    return rooms.map((r) => {
+    return Object.values(rooms).map((r) => {
         return {
             id: r.id,
             isLock: r.passcode ? true : false,
@@ -60,10 +60,11 @@ io.on('connection', (socket) => {
         room.passcode = /\d{4}/g.test(passcode) ? passcode : null
         room.users = new Set()
         room.users.add(nickname)
-        rooms.push(room)
 
         userNickname = nickname
         currentRoom = room
+
+        rooms[room.id] = room
 
         socket.join(room.id)
         socket.emit('create-room', room.id)
@@ -71,7 +72,7 @@ io.on('connection', (socket) => {
     })
 
     socket.on('join-room', (roomId, passcode, nickname) => {
-        room = rooms.find((e) => e.id == roomId)
+        room = rooms[roomId]
 
         if (!room) return
         if (room.users.has(nickname)) {
@@ -91,7 +92,7 @@ io.on('connection', (socket) => {
     })
 
     socket.on('is-lock', (id) => {
-        const found = rooms.find((r) => r.id == id)
+        const found = rooms[id]
 
         if (found) {
             socket.emit('is-lock', found.passcode ? true : false)
@@ -110,6 +111,11 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         if (currentRoom) {
             currentRoom.users.delete(userNickname)
+            if (currentRoom.users.size == 0) {
+                delete rooms[currentRoom.id]
+                io.emit('allRoom', GetRoom())
+            }
+
             io.to(currentRoom.id).emit(`${userNickname} left the room`)
         }
     })

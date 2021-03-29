@@ -33,6 +33,7 @@ export default {
 
         this.$socket.emit('allRoom')
         this.$socket.on('allRoom', function(rooms) {
+            console.log(rooms)
             store.commit('addRooms', rooms)
         })
     },
