@@ -1,42 +1,125 @@
 <template>
     <div class="room">
-        <div id="messages">
-            <ul>
-                <li
-                    v-for="item in messages"
-                    v-bind:class="{ me: item.user === undefined }"
-                    :key="item.id"
-                >
-                    <div v-if="item.user != undefined" class="user">
-                        {{ item.user }}
-                    </div>
-                    <div class="message">
-                        {{ item.message }}
-                    </div>
-                </li>
-            </ul>
-        </div>
-        <form class="chat-bar" id="form-message" v-on:submit.prevent="Send">
-            <v-btn class="mx-2" icon color="grey" @click="copyRoomURL">
-                <v-icon>fa4 fa-link</v-icon>
-            </v-btn>
-            <input
-                id="message"
-                autocomplete="off"
-                type="text"
-                placeholder="Enter message ..."
-            />
+        <div class="text-center">
+            <v-dialog width="500">
+                <template v-slot:activator="{ on, attrs }">
+                    <v-btn icon color="grey" v-on="on" v-bind="attrs">
+                        <v-icon small>fa4 fa-info</v-icon>
+                    </v-btn>
+                </template>
 
-            <v-btn
-                class="mx-2"
-                icon
-                color="grey"
-                type="submit"
-                form="form-message"
-            >
-                <v-icon>fa4 fa-paper-plane</v-icon>
-            </v-btn>
-        </form>
+                <v-card>
+                    <v-card-text>
+                        <div
+                            class="text--primary text-left text-subtitle-1 pt-6"
+                        >
+                            👋 Hi! This is a real-time group chat application
+                            implemented using Node.js + Socket.IO and + VueJS.
+                        </div>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-btn color="blue" @click="show = !show" text>
+                            function
+                        </v-btn>
+
+                        <v-btn icon @click="show = !show">
+                            <v-icon x-small>{{
+                                show
+                                    ? 'fa4 fa-chevron-up'
+                                    : 'fa4 fa-chevron-down'
+                            }}</v-icon>
+                        </v-btn>
+                    </v-card-actions>
+                    <v-expand-transition>
+                        <div v-show="show">
+                            <v-divider></v-divider>
+
+                            <v-card-text
+                                class="text--primary text-left text-subtitle-1 pt-6"
+                            >
+                                💬 Create chat room (have passcode or not).
+                                <br />🚪 Browse room in real-time for joining.
+                                <br />🔗 Share room url for joining
+                            </v-card-text>
+                        </div>
+                    </v-expand-transition>
+
+                    <v-divider></v-divider>
+
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-tooltip top>
+                            <template v-slot:activator="{ on, attrs }">
+                                <v-btn
+                                    icon
+                                    href="https://github.com/vanviethieuanh/group-chat"
+                                    target="_blank"
+                                    v-bind="attrs"
+                                    v-on="on"
+                                >
+                                    <v-icon>fa4 fa-github</v-icon>
+                                </v-btn>
+                            </template>
+                            <span>Repository</span>
+                        </v-tooltip>
+
+                        <v-tooltip top>
+                            <template v-slot:activator="{ on, attrs }">
+                                <v-btn
+                                    icon
+                                    href="https://vanviethieuanh.com"
+                                    target="_blank"
+                                    v-bind="attrs"
+                                    v-on="on"
+                                >
+                                    <v-icon>fa4 fa-globe</v-icon>
+                                </v-btn>
+                            </template>
+                            <span>Websites</span>
+                        </v-tooltip>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+        </div>
+        <div class="container">
+            <div id="messages">
+                <ul>
+                    <li
+                        v-for="item in messages"
+                        v-bind:class="{ me: item.user === undefined }"
+                        :key="item.id"
+                    >
+                        <div v-if="item.user != undefined" class="user">
+                            {{ item.user }}
+                        </div>
+                        <div class="message">
+                            {{ item.message }}
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <form class="chat-bar" id="form-message" v-on:submit.prevent="Send">
+                <v-btn class="mr-2" icon color="grey" @click="copyRoomURL">
+                    <v-icon dense>fa4 fa-link</v-icon>
+                </v-btn>
+                <input
+                    id="message"
+                    autocomplete="off"
+                    type="text"
+                    placeholder="Enter message ..."
+                />
+
+                <v-btn
+                    class="ml-2"
+                    icon
+                    color="grey"
+                    type="submit"
+                    form="form-message"
+                >
+                    <v-icon dense>fa4 fa-paper-plane</v-icon>
+                </v-btn>
+            </form>
+        </div>
     </div>
 </template>
 
@@ -56,7 +139,8 @@ export default {
     data: function() {
         return {
             messages: [],
-            roomId: this.$route.params.id
+            roomId: this.$route.params.id,
+            show: false
         }
     },
     updated() {
@@ -104,107 +188,123 @@ export default {
 }
 
 .room {
-    background: white;
+    background: $dim;
 
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
 
     height: 100vh;
 
-    #messages {
-        overflow-y: visible;
-        overflow-x: hidden;
-
-        margin-bottom: $chat-bar-height + 2 * $chat-bar-margin;
-
-        width: 100%;
-        max-width: 400px;
-
-        ul {
-            padding-left: 0;
-            list-style: none;
-        }
-        li {
-            border-radius: 20px;
-
-            width: fit-content;
-
-            display: flex;
-            flex-direction: column;
-
-            clear: both;
-            text-align: left;
-
-            .user {
-                font-size: $tiny-text;
-                opacity: 0.5;
-                padding: $bubble-space;
-            }
-
-            .message {
-                font-size: $small-text;
-                line-height: $small-text + 2px;
-
-                padding: $bubble-padding;
-                border-radius: $bubble-border-radius;
-            }
-
-            &:not(.me) {
-                float: left;
-                margin-right: $bubble-space-from-op;
-
-                .message {
-                    background: $dim;
-                    border-bottom-left-radius: $input-border-radius;
-                }
-                & + .me {
-                    margin-top: $bubble-space;
-                }
-            }
-
-            &.me {
-                float: right;
-                margin-left: $bubble-space-from-op;
-                margin-right: 5px;
-
-                .message {
-                    border-bottom-right-radius: $input-border-radius;
-                    background: $main-color;
-                    color: white;
-                }
-
-                & + .me {
-                    margin-top: $bubble-space;
-                }
-                & + :not(.me) {
-                    margin-top: $bubble-space;
-                }
-            }
-        }
+    .text-center {
+        position: fixed;
+        z-index: 100;
+        right: 20px;
+        top: 20px;
     }
 
-    .chat-bar {
-        i {
-            font-size: $chat-bar-height * 0.6;
-        }
+    .container {
+        height: 90%;
+        width: auto;
+
         display: flex;
+        flex-direction: column;
 
-        position: absolute;
-        bottom: $chat-bar-margin;
+        background: white;
+        border-radius: 5px;
+        box-shadow: $shadow;
 
-        width: 100%;
-        max-width: 400px;
+        #messages {
+            overflow-y: visible;
+            overflow-x: hidden;
 
-        input {
-            background: $dim;
-            outline: none;
+            margin-bottom: $chat-bar-margin;
 
             width: 100%;
-            height: $chat-bar-height;
+            max-width: 320px;
 
-            border-radius: 36px;
-            padding: 0 16px;
+            ul {
+                padding-left: 0;
+                list-style: none;
+            }
+            li {
+                border-radius: 20px;
+
+                width: fit-content;
+
+                display: flex;
+                flex-direction: column;
+
+                clear: both;
+                text-align: left;
+
+                .user {
+                    font-size: $tiny-text;
+                    opacity: 0.5;
+                    padding: $bubble-space;
+                }
+
+                .message {
+                    font-size: $small-text;
+                    line-height: $small-text + 2px;
+
+                    padding: $bubble-padding;
+                    border-radius: $bubble-border-radius;
+                }
+
+                &:not(.me) {
+                    float: left;
+                    margin-right: $bubble-space-from-op;
+
+                    .message {
+                        background: $dim;
+                        border-bottom-left-radius: $input-border-radius;
+                    }
+                    & + .me {
+                        margin-top: $bubble-space-expand;
+                    }
+                }
+
+                &.me {
+                    float: right;
+                    margin-left: $bubble-space-from-op;
+                    margin-right: 5px;
+
+                    .message {
+                        border-bottom-right-radius: $input-border-radius;
+                        background: $main-color;
+                        color: white;
+                    }
+
+                    & + .me {
+                        margin-top: $bubble-space;
+                    }
+                    & + :not(.me) {
+                        margin-top: $bubble-space;
+                    }
+                }
+            }
+        }
+
+        .chat-bar {
+            display: flex;
+            margin-top: auto;
+
+            bottom: $chat-bar-margin;
+
+            width: 100%;
+
+            input {
+                background: $dim;
+                outline: none;
+
+                width: 100%;
+                height: $chat-bar-height;
+
+                border-radius: 36px;
+                padding: 0 16px;
+            }
         }
     }
 

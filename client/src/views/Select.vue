@@ -5,7 +5,7 @@
             <router-link to="/create">Create a room ?</router-link>
         </div>
         <v-list v-else flat>
-            <v-subheader>ROOM</v-subheader>
+            <v-subheader>ROOMS</v-subheader>
             <v-list-item-group v-model="selectedRoomId" color="primary">
                 <v-list-item
                     v-for="(room, i) in getRoomsAsItems"

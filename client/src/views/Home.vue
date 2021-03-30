@@ -8,8 +8,8 @@
         <div class="text-center">
             <v-dialog width="500">
                 <template v-slot:activator="{ on, attrs }">
-                    <v-btn icon color="blue" v-on="on" v-bind="attrs">
-                        <v-icon>fa4 fa-info</v-icon>
+                    <v-btn icon color="grey" v-on="on" v-bind="attrs">
+                        <v-icon dense>fa4 fa-info</v-icon>
                     </v-btn>
                 </template>
 
@@ -28,8 +28,10 @@
                         </v-btn>
 
                         <v-btn icon @click="show = !show">
-                            <v-icon>{{
-                                show ? 'mdi-chevron-up' : 'mdi-chevron-down'
+                            <v-icon x-small>{{
+                                show
+                                    ? 'fa4 fa-chevron-up'
+                                    : 'fa4 fa-chevron-down'
                             }}</v-icon>
                         </v-btn>
                     </v-card-actions>

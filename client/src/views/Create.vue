@@ -15,7 +15,7 @@
             </p>
             <div class="nickname-input">
                 <button v-on:click="Back">
-                    <v-icon>
+                    <v-icon small>
                         fa4 fa-chevron-left
                     </v-icon>
                 </button>
@@ -150,9 +150,6 @@ export default {
             font-size: $medium-text;
 
             margin-left: 7px;
-        }
-        i {
-            font-size: 14px;
         }
 
         .nickname-input {
