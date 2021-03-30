@@ -13,5 +13,10 @@ module.exports = {
             title: 'Group Chat App'
         }
     },
+
+    outputDir: './dist/',
+    assetsDir: './static/',
+    indexPath: './templates/index.html',
+
     transpileDependencies: ['vuetify']
 }

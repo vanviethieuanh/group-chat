@@ -7,7 +7,10 @@ const PORT = process.env.PORT || 5000
 const app = express()
 const rooms = {}
 
+app.use(express.static('dist'))
 app.use(cors())
+
+console.log('dist')
 
 const http = require('http').Server(app)
 const io = require('socket.io')(http, {
@@ -24,7 +27,7 @@ const GetRoom = function () {
 }
 
 app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html')
+    res.sendFile(__dirname + '/dist/templates/index.html')
 })
 
 io.on('connection', (socket) => {
